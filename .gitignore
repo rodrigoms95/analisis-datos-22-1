@@ -1,6 +1,6 @@
 # Documents to ignore
 *.code-workspace
-datos
+#datos
 resultados
 
 # Byte-compiled / optimized / DLL files
