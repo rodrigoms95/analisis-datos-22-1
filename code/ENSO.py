@@ -144,5 +144,5 @@ with open(path_r  + "ENSO.txt", "w", encoding = "utf-8") as f:
 
 df_ENSO.plot()
 plt.grid(axis = "y")
-plt.title("Indicadores ENSO", fontsize = "18")
+plt.title("Índices ENSO", fontsize = "18")
 plt.savefig(path_r + "ENSO.png")
