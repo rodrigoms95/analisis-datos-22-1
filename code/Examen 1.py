@@ -66,6 +66,7 @@ plt.legend(["Años Niño", "_"])
 plt.savefig(path_r + "Ejercicio_7.png")
 plt.close()
 
+
 # Ejercicio 8.
 # Correlaciones. 
 
@@ -79,7 +80,6 @@ with open(path_r + "examen 1.txt", "w", encoding = "utf-8") as f:
         f.write("Correlación de " + tipo[i]
             + f"{corr[i]:.3f}\n")
     f.write("\n")
-
 
 
 # Datos ejercicio 9.
@@ -210,7 +210,7 @@ sol_anual.rename(columns = {"Monthly Sunspots": "Sunspots"},
     inplace = True)
 
 pd.plotting.autocorrelation_plot(
-        sol_anual, marker = "o").set_xlim([1, 40])
+    sol_anual, marker = "o").set_xlim([1, 40])
 
 #plt.title("Manchas solares anuales - Autocorrelación",
 #    fontsize = 16)
