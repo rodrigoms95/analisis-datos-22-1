@@ -61,9 +61,9 @@ p = stats.norm.cdf(z)
 
 # Intervalo de confianza.
 alpha = 0.5
-crit = stats.norm.ppf( alpha / 2 )
+crit = stats.norm.ppf( 1- alpha / 2 )
 error = crit * s_d
-conf = [ m_d + error, m_d - error ]
+conf = [ m_d - error, m_d + error ]
 
 print("Ejercicio 1")
 print("o -> Niño")
@@ -421,10 +421,19 @@ k = mean ** 2 / (std ** 2 - mean)
 # Parámetros estimados.
 params = 2
 
+print("")
+print("Parámetros")
+print("Gamma")
+print(f"alpha: {alpha:.2f}")
+print(f"beta : {beta:.2f}")
+print("Binomial negativa")
+print(f"p: {p:.2f}")
+print(f"k: {k:.2f}")
+
 # 3.a: Chi-square
 # Histograma de datos observados.
-bins_lim = [ 0, 8, 16, 24, 32, 40, 48,
-    df[v].max() + 1 ]
+bins_lim = [ 0, 7.5, 15.5, 23.5, 31.5,
+    39.5, 47.5, df[v].max() ]
 n_obs, bins = np.histogram( 
     df[v], bins = bins_lim )
 
@@ -446,34 +455,21 @@ prob_gamma = np.array( [
 n_gamma = n_obs.sum() * prob_gamma
 
 # Histograma de la distribución discreta
-mbins = [
-    ( bins_lim[1] + bins_lim[0] ) / 2,
-    ( bins_lim[2] + bins_lim[1] ) / 2,
-    ( bins_lim[3] + bins_lim[2] ) / 2,
-    ( bins_lim[4] + bins_lim[3] ) / 2,
-    ( bins_lim[5] + bins_lim[4] ) / 2,
-    ( bins_lim[6] + bins_lim[5] ) / 2,
-    ( bins_lim[7] + bins_lim[6] ) / 2
-    ]
-wbins = [
-    bins_lim[1] - bins_lim[0],
-    bins_lim[2] - bins_lim[1],
-    bins_lim[3] - bins_lim[2],
-    bins_lim[4] - bins_lim[3],
-    bins_lim[5] - bins_lim[4],
-    bins_lim[6] - bins_lim[5],
-    bins_lim[7] - bins_lim[6]
-    ]
 prob_nbinom = np.array( [
-    stats.nbinom.pmf( mbins[0], k, p ),
-    stats.nbinom.pmf( mbins[1], k, p ),
-    stats.nbinom.pmf( mbins[2], k, p ),
-    stats.nbinom.pmf( mbins[3], k, p ),
-    stats.nbinom.pmf( mbins[4], k, p ),
-    stats.nbinom.pmf( mbins[5], k, p ),
-    stats.nbinom.pmf( mbins[6], k, p ),
+    stats.nbinom.cdf(bins_lim[1], k, p),
+    stats.nbinom.cdf(bins_lim[2], k, p) -
+    stats.nbinom.cdf(bins_lim[1], k, p),
+    stats.nbinom.cdf(bins_lim[3], k, p) -
+    stats.nbinom.cdf(bins_lim[2], k, p),
+    stats.nbinom.cdf(bins_lim[4], k, p) -
+    stats.nbinom.cdf(bins_lim[3], k, p),
+    stats.nbinom.cdf(bins_lim[5], k, p) -
+    stats.nbinom.cdf(bins_lim[4], k, p),
+    stats.nbinom.cdf(bins_lim[6], k, p) -
+    stats.nbinom.cdf(bins_lim[5], k, p),
+    stats.nbinom.sf( bins_lim[6], k, p) 
     ] )
-n_nbinom = n_obs.sum() * prob_nbinom * wbins
+n_nbinom = n_obs.sum() * prob_nbinom
 
 # Graficamos los datos y las distribuciones.
 fig, ax = plt.subplots()
@@ -482,16 +478,17 @@ df[v].hist( bins = bins_lim,
     density = True,
     ax = ax )
 
-x_cont = np.linspace(0, bins_lim[-1], 1000)
+x_gamma = np.linspace(0, bins_lim[-1], 1000)
 y_gamma = stats.gamma.pdf(
-    x_cont, alpha, zeta, beta)
+    x_gamma, alpha, zeta, beta)
 
+x_nbinom = np.arange(0,
+    np.floor( df[v].max() ), 1)
 y_nbinom = stats.nbinom.pmf(
-    df[v].sort_values(),
-    alpha, zeta, beta)
+    x_nbinom, k, p)
 
-ax.plot(x_cont, y_gamma)
-ax.stem( mbins, prob_nbinom,
+ax.plot(x_gamma, y_gamma)
+ax.stem( x_nbinom, y_nbinom,
     linefmt = "C3-",
     markerfmt = "C3o" )
 
@@ -504,11 +501,9 @@ ax.legend(["Gamma", "Histograma",
 ax.set_xlim(0, bins_lim[-1])
 ax.set_ylim(0)
 
-fig.savefig(path_r + "Ejercicio_5.png")
-
 # Prueba chi-square.
 alpha_test = 0.05
-clases = bins.shape[0] - 1
+clases = bins.shape[0]
 nu = clases - params - 1
 crit = stats.chi.ppf(1 - alpha_test, nu)
 
@@ -542,6 +537,8 @@ print("Binomial Negativa")
 print(f"Chi : {chi_nbinom:.2f}")
 print(f"p   : {p_nbinom:.4f}")
 print(f"crit: {crit:.4f}")
+
+fig.savefig(path_r + "Ejercicio_5.png")
 
 
 # Ejercicio 6
